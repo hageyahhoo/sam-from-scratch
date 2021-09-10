@@ -1,0 +1,49 @@
+{
+    "Servant": [
+        {
+            "PutRequest": {
+                "Item": {
+                    "ServantId": {
+                        "S": "1"
+                    },
+                    "Name": {
+                        "S": "Mash"
+                    },
+                    "Class": {
+                        "S": "Shielder"
+                    }
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "ServantId": {
+                        "S": "2"
+                    },
+                    "Name": {
+                        "S": "Altria"
+                    },
+                    "Class": {
+                        "S": "Saber"
+                    }
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "ServantId": {
+                        "S": "23"
+                    },
+                    "Name": {
+                        "S": "Medusa"
+                    },
+                    "Class": {
+                        "S": "Rider"
+                    }
+                }
+            }
+        }
+    ]
+}

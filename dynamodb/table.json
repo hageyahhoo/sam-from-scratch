@@ -1,0 +1,69 @@
+{
+    "TableName": "Servant",
+    "ProvisionedThroughput": {
+        "ReadCapacityUnits": 5,
+        "WriteCapacityUnits": 5
+    },
+    "AttributeDefinitions": [
+        {
+            "AttributeName": "ServantId",
+            "AttributeType": "S"
+        },
+        {
+            "AttributeName": "Name",
+            "AttributeType": "S"
+        },
+        {
+            "AttributeName": "Class",
+            "AttributeType": "S"
+        }
+    ],
+    "KeySchema": [
+        {
+            "AttributeName": "ServantId",
+            "KeyType": "HASH"
+        }
+    ],
+    "GlobalSecondaryIndexes": [
+        {
+            "IndexName": "ServantIndex",
+            "KeySchema": [
+                {
+                    "AttributeName": "ServantId",
+                    "KeyType": "HASH"
+                },
+                {
+                    "AttributeName": "Name",
+                    "KeyType": "RANGE"
+                }
+            ],
+            "Projection": {
+                "ProjectionType": "ALL"
+            },
+            "ProvisionedThroughput": {
+                "ReadCapacityUnits": 5,
+                "WriteCapacityUnits": 5
+            }
+        },
+        {
+            "IndexName": "ClassIndex",
+            "KeySchema": [
+                {
+                    "AttributeName": "ServantId",
+                    "KeyType": "HASH"
+                },
+                {
+                    "AttributeName": "Class",
+                    "KeyType": "RANGE"
+                }
+            ],
+            "Projection": {
+                "ProjectionType": "ALL"
+            },
+            "ProvisionedThroughput": {
+                "ReadCapacityUnits": 5,
+                "WriteCapacityUnits": 5
+            }
+        }
+    ]
+}
