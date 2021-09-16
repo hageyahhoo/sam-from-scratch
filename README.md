@@ -1,4 +1,4 @@
-# sam-scratch
+# sam-from-scratch
 
 This project aims to learn how to create an [AWS Lambda function](https://aws.amazon.com/lambda/) which interacts with [Amazon DynamoDB](https://aws.amazon.com/dynamodb/).
 <br><br><br>
