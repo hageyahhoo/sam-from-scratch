@@ -111,4 +111,56 @@ The same as Lambda.
     ```
     curl http://<DNS name of ELB>/samScratch
     ```
+<br><br><br>
+
+
+
+# How to Use This Project with GraphQL
+You can use [GraphQL](https://graphql.org/) API with [AWS AppSync](https://aws.amazon.com/appsync/) instead of `API Gateway`.
+<br><br>
+
+
+## 1. DynamoDB, Docker Image, and Lambda
+The same as Lambda.
+<br><br>
+
+
+## 2. GraphQL
+1. Create S3 Bucket and upload `schema.graphql` to that.
+    1. Create S3 Bucket by running the following command.
+        ```
+        aws s3 mb s3://sam-scratch-graphql
+        ```
+        - BucketName: `sam-scratch-graphql`
+    1. Upload `schema.graphql` to S3 Bucket created by running the following command.
+        ```
+        aws s3 cp ./graphql/schema.graphql s3://sam-scratch-graphql/schema.graphql
+        ```
+    1. Apply the policy file to S3 Bucket by running the following command.
+        ```
+        aws s3api put-bucket-policy --bucket sam-scratch-graphql --policy file://./graphql/bucket_policy.json
+        ```
+1. Create your `Schema`, `Data Source`, `Resolver` and related IAM role by running the following command.
+    ```
+    aws cloudformation create-stack --stack-name samScratchGraphQL --capabilities CAPABILITY_NAMED_IAM --template-body file://./cfn/appsync.yaml
+    ```
+1. Access to AppSync Console and get `API URL` and `API KEY`.
+1. Invoke your GraphQL API by running the following commands.
+    ```
+    curl -H "Content-Type:application/graphql" \
+    -H "x-api-key:<API KEY>" \
+    -d '{ "query": "query allServants { allServants { ServantId Name Class } }"}' \
+    <API URL>
+    ```
+    or
+    ```
+    curl -H "Content-Type:application/graphql" \
+    -H "x-api-key:<API KEY>" \
+    -d '{ "query": "query singleServant { singleServant(ServantId:\"23\") { ServantId Name Class } }"}' \
+    <API URL>
+    ```
+    1. Specify `x-api-key:<API KEY>` as HTTP Header.
+        - https://docs.aws.amazon.com/appsync/latest/devguide/security-authz.html#api-key-authorization
+    1. Specify `Content-Type:application/graphql` as HTTP Header.
+    1. Specify GraphQL query like `"query": "query <QUERY_NAME> { QUERY_NAME { ITEM_NAME } }`.
 <br><br>

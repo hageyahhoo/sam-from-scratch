@@ -1,0 +1,117 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  GraphQLAPI:
+    Type: AWS::AppSync::GraphQLApi
+    Properties:
+      Name: SamScratchGraphQLAPI
+      AuthenticationType: API_KEY
+      XrayEnabled: true
+
+  GraphQLAPIKey:
+    Type: AWS::AppSync::ApiKey
+    Properties:
+      ApiId: !GetAtt GraphQLAPI.ApiId
+      # (CAUTION) Unix Time
+      Expires: 1632409200
+
+  Schema:
+    Type: AWS::AppSync::GraphQLSchema
+    Properties:
+      ApiId: !GetAtt GraphQLAPI.ApiId
+      DefinitionS3Location: s3://sam-scratch-graphql/schema.graphql
+
+  DataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId: !GetAtt GraphQLAPI.ApiId
+      Name: SamScratchGraphQLDataSource
+      Type: AMAZON_DYNAMODB
+      DynamoDBConfig:
+        TableName: Servant
+        AwsRegion: !Sub ${AWS::Region}
+      ServiceRoleArn: !GetAtt GraphQLRole.Arn
+
+  AllServantsResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !GetAtt GraphQLAPI.ApiId
+      DataSourceName: !GetAtt DataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "Scan",
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($ctx.result.items)
+      FieldName: allServants
+      TypeName: Query
+
+  SingleServantResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !GetAtt GraphQLAPI.ApiId
+      DataSourceName: !GetAtt DataSource.Name
+      RequestMappingTemplate: |
+        {
+            "version": "2017-02-28",
+            "operation": "GetItem",
+            "key": {
+                "ServantId": $util.dynamodb.toDynamoDBJson($ctx.args.ServantId),
+            }
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($ctx.result)
+      FieldName: singleServant
+      TypeName: Query
+
+  GraphQLLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: GraphQLLogGroup
+
+  GraphQLRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: appsync.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: AppSyncPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogStream'
+                  - 'logs:CreateLogGroup'
+                  - 'logs:PutLogEvents'
+                Resource: '*'
+        - PolicyName: DynamoDBPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Sid: DynamoDBScanning
+              Effect: Allow
+              Action:
+                - dynamodb:BatchGetItem
+                - dynamodb:GetItem
+                - dynamodb:Query
+                - dynamodb:Scan
+              Resource: !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/Servant
+            - Sid: DynamoDBLogging
+              Effect: Allow
+              Action:
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource:
+                - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:*
+                - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*
+            - Sid: LogGroupCreation
+              Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+              Resource: '*'

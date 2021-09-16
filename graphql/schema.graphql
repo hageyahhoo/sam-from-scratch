@@ -1,0 +1,14 @@
+schema {
+    query: Query
+}
+
+type Query {
+    singleServant(ServantId: String!): Servant
+    allServants: [Servant]
+}
+
+type Servant {
+    ServantId: String!
+    Name: String
+    Class: String
+}
