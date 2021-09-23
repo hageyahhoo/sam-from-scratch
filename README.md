@@ -127,18 +127,14 @@ The same as Lambda.
 
 ## 2. GraphQL
 1. Create S3 Bucket and upload `schema.graphql` to that.
-    1. Create S3 Bucket by running the following command.
+    1. Create S3 Bucket with the proper policy by running the following command.
         ```
-        aws s3 mb s3://sam-scratch-graphql
+        aws cloudformation create-stack --stack-name samScratchGraphQLS3 --capabilities CAPABILITY_NAMED_IAM --template-body file://./cfn/appsync_s3.yaml
         ```
         - BucketName: `sam-scratch-graphql`
     1. Upload `schema.graphql` to S3 Bucket created by running the following command.
         ```
         aws s3 cp ./graphql/schema.graphql s3://sam-scratch-graphql/schema.graphql
-        ```
-    1. Apply the policy file to S3 Bucket by running the following command.
-        ```
-        aws s3api put-bucket-policy --bucket sam-scratch-graphql --policy file://./graphql/bucket_policy.json
         ```
 1. Create your `Schema`, `Data Source`, `Resolver` and related IAM role by running the following command.
     ```

@@ -13,7 +13,7 @@ Resources:
     Properties:
       ApiId: !GetAtt GraphQLAPI.ApiId
       # (CAUTION) Unix Time
-      Expires: 1632409200
+      Expires: 1632992400
 
   Schema:
     Type: AWS::AppSync::GraphQLSchema
